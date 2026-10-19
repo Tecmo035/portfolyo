@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Muhammed Emin Coşkun</title>
+<meta name="description" content="Muhammed Emin Coşkun, oyun tasarımcısı. Mortis Loop, FIRUZE: The Art of Clay ve The Last Shinobi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Renkler: sıcak kâğıt zemin, mürekkep siyahı, koyu yeşil vurgu ===== */
+:root{
+  /* Kırmızı-siyah tema: zemin siyah, vurgu kırmızı */
+  --bg:#0c0a0a; --card:#151111; --fg:#f4ede8; --mute:#a3958f; --line:rgba(244,237,232,.12);
+  --acc:#e2262f; --acc-soft:rgba(226,38,47,.14); --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 40px rgba(0,0,0,.45);
+  --serif:'Fraunces',Georgia,serif; --sans:'Instrument Sans',system-ui,sans-serif;
+  color-scheme:dark;
+}
+
+/* ===== Temel ===== */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,rgba(226,38,47,.16),transparent 60%),var(--bg);background-attachment:fixed;color:var(--fg);font:17px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+img,video{display:block;max-width:100%}
+.wrap{max-width:1160px;margin:0 auto;padding:0 32px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:4px}
+::selection{background:var(--acc);color:#fff}
+
+/* ===== Üst menü ===== */
+.nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .3s}
+.nav.scrolled{border-bottom-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.nav-name{font-family:var(--serif);font-size:20px;font-weight:600;text-decoration:none;letter-spacing:-.01em}
+.nav-name em{font-style:italic;color:var(--acc)}
+.nav-links{display:flex;align-items:center;gap:26px}
+.nav-links a{position:relative;text-decoration:none;font-size:15px;color:var(--mute);transition:color .2s}
+.nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.6,0,.2,1)}
+.nav-links a:hover,.nav-links a.on{color:var(--fg)}
+.nav-links a:hover::after,.nav-links a.on::after{transform:scaleX(1);transform-origin:left}
+
+/* Dil seçici: seçili olan dolu */
+.lang{position:relative;display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:6px}
+.lang button{position:relative;z-index:1;border:0;background:none;font:inherit;font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--mute);padding:4px 10px;cursor:pointer;transition:color .25s}
+.lang button[aria-pressed="true"]{color:#fff}
+.lang button:active{transform:scale(.9)}
+.lang::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:4px;background:var(--acc);transition:transform .35s cubic-bezier(.3,.7,.4,1.2)}
+.lang[data-on="en"]::before{transform:translateX(100%)}
+.i18n-fade{animation:i18n .35s}
+@keyframes i18n{from{opacity:.2;filter:blur(3px)}}
+
+/* ===== Butonlar: basınca küçülür, içinden renk dolar, dalga yayılır ===== */
+.btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--fg);background:transparent;color:var(--fg);font:inherit;font-size:15px;font-weight:600;padding:12px 20px;border-radius:6px;cursor:pointer;text-decoration:none;transition:color .3s,transform .15s cubic-bezier(.3,.7,.4,1.5)}
+.btn::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--fg);transform:scaleX(0);transform-origin:right;transition:transform .4s cubic-bezier(.6,0,.2,1)}
+.btn:hover{color:var(--bg)}
+.btn:hover::before{transform:scaleX(1);transform-origin:left}
+.btn:active{transform:scale(.95);transition-duration:.08s}
+.btn--acc{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn--acc::before{background:#fff}
+.btn--acc:hover{color:var(--acc);border-color:#fff}
+.btn .arr{display:inline-block;transition:transform .3s}
+.btn:hover .arr{transform:translateX(4px)}
+.ripple{position:absolute;border-radius:50%;pointer-events:none;background:currentColor;opacity:.25;transform:scale(0);animation:rip .6s ease-out forwards;z-index:0}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+.link{display:inline-flex;align-items:center;gap:8px;border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--fg);cursor:pointer;text-decoration:none;position:relative}
+.link::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1.5px;background:var(--acc);transform:scaleX(.25);transform-origin:left;transition:transform .35s cubic-bezier(.6,0,.2,1)}
+.link:hover::after{transform:scaleX(1)}
+.link:active{transform:scale(.96)}
+.link .arr{transition:transform .3s}.link:hover .arr{transform:translateX(4px)}
+
+/* ===== Banner ===== */
+.banner{margin-top:20px;border-radius:10px;overflow:hidden;aspect-ratio:4/1;background:#000;box-shadow:var(--shadow);animation:bannerIn 1s cubic-bezier(.2,.8,.2,1) both}
+.banner img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.banner:hover img{transform:scale(1.03)}
+@keyframes bannerIn{from{opacity:0;transform:translateY(-12px) scale(.985)}}
+
+/* ===== Giriş: solda yuvarlak fotoğraf, yanında isim ===== */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:56px;align-items:center;padding:56px 0 64px;border-bottom:1px solid var(--line)}
+.avatar{width:240px;height:240px;border-radius:50%;position:relative;cursor:pointer;animation:pop .9s cubic-bezier(.2,.8,.3,1.2) both}
+.avatar img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;border-radius:50%;box-shadow:0 0 0 3px var(--acc),0 0 40px rgba(226,38,47,.35);position:relative;z-index:1;transition:transform .5s cubic-bezier(.3,.7,.4,1.3)}
+/* Fotoğrafın etrafında dönen yazı halkası */
+.ring{position:absolute;inset:-34px;z-index:0;animation:spin 28s linear infinite;color:var(--mute)}
+.ring text{font:600 11px var(--sans);letter-spacing:3.2px;text-transform:uppercase;fill:currentColor}
+.avatar:hover img{transform:scale(1.04)}
+.avatar.wave img{animation:wiggle .6s}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes wiggle{25%{transform:rotate(-8deg) scale(1.05)}55%{transform:rotate(6deg) scale(1.05)}80%{transform:rotate(-3deg)}}
+@keyframes pop{from{opacity:0;transform:scale(.7) rotate(-8deg)}}
+.hi{position:absolute;right:0;top:10px;z-index:2;background:var(--fg);color:var(--bg);border-radius:6px;padding:5px 10px;font-size:13px;font-weight:600;opacity:0;transform:scale(.6) translateY(8px);transition:.3s cubic-bezier(.3,.7,.4,1.5)}
+.avatar.wave .hi,.avatar:hover .hi{opacity:1;transform:none}
+.hero-text{animation:up .9s .15s both}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);margin-bottom:18px}
+.status i{width:8px;height:8px;border-radius:50%;background:#3ccf7a;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,179,106,.5)}70%{box-shadow:0 0 0 8px rgba(47,179,106,0)}100%{box-shadow:0 0 0 0 rgba(47,179,106,0)}}
+h1{font-family:var(--serif);font-size:clamp(46px,7.4vw,96px);line-height:.98;letter-spacing:-.035em;margin:0 0 22px;font-weight:500}
+h1 em{font-style:italic;color:var(--acc);font-weight:400}
+.lead{font-size:20px;color:var(--mute);max-width:600px;margin:0 0 30px;text-wrap:pretty}
+.lead b{color:var(--fg);font-weight:600}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+
+/* ===== Bölümler: solda numaralı etiket, sağda içerik ===== */
+.sec{display:grid;grid-template-columns:200px 1fr;gap:40px;padding:80px 0;border-bottom:1px solid var(--line)}
+.sec-label{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);position:sticky;top:96px;align-self:start}
+.sec-label span{display:block;font-family:var(--serif);font-size:40px;font-weight:400;letter-spacing:-.02em;color:var(--fg);text-transform:none;line-height:1;margin-bottom:8px}
+
+/* ===== Hakkımda ===== */
+.about-text{font-family:var(--serif);font-size:clamp(22px,2.6vw,30px);line-height:1.38;letter-spacing:-.01em;margin:0 0 36px;font-weight:400;text-wrap:pretty}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;margin:0}
+.facts div{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.facts dt{color:var(--mute)}
+.facts dd{margin:0;font-weight:500;text-align:right}
+.skills{margin-top:28px;color:var(--mute);font-size:15px;line-height:2}
+.skills span{display:inline-block;color:var(--fg);transition:color .2s,transform .2s}
+.skills span:hover{color:var(--acc);transform:translateY(-2px)}
+.skills span + span::before{content:"/";color:var(--line);margin:0 10px;display:inline-block}
+
+/* ===== Öne çıkan proje ===== */
+.feat-video{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;border-radius:8px}
+.feat-video video{width:100%;height:100%;object-fit:cover}
+.feat-video.px video{image-rendering:pixelated}
+.play{position:absolute;inset:0;border:0;padding:28px;width:100%;font:inherit;cursor:pointer;display:flex;align-items:flex-end;background:linear-gradient(0deg,rgba(0,0,0,.6),rgba(0,0,0,0) 50%);transition:opacity .3s}
+.play > div{display:flex;align-items:center;gap:16px;color:#fff}
+.play span{width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center;transition:transform .35s cubic-bezier(.3,.7,.4,1.5)}
+.play span::before{content:"";margin-left:6px;border-left:20px solid #111;border-top:12px solid transparent;border-bottom:12px solid transparent}
+.play em{font-style:normal;font-weight:600;font-size:17px}
+.play:hover span{transform:scale(1.1)}
+.play:active span{transform:scale(.92)}
+.feat-video.playing .play{opacity:0;pointer-events:none}
+.feat-info{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;margin-top:32px}
+.feat-info h3{font-family:var(--serif);font-size:clamp(40px,5.5vw,68px);font-weight:500;letter-spacing:-.035em;line-height:1;margin:0 0 16px}
+.feat-info p{margin:0 0 26px;color:var(--mute);font-size:18px}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--acc);margin-bottom:14px}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.rows{margin:0;align-self:start}
+.rows div{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.rows div:last-child{border-bottom:1px solid var(--line)}
+.rows dt{color:var(--mute)}
+.rows dd{margin:0;text-align:right;font-weight:500}
+.btns{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+/* ===== Diğer oyunlar: yan yana, üstüne gelince video ===== */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+#featured + .grid{margin-top:0}
+#featured:not([style*=none]){margin-bottom:56px}
+.tile{display:flex;flex-direction:column}
+.tile-media{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:8px;background:#111;border:0;padding:0;width:100%;cursor:pointer;display:block;color:#fff;text-align:left;font:inherit}
+.tile-media img,.tile-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .4s,transform .8s cubic-bezier(.2,.7,.2,1)}
+.tile-media:hover img,.tile-media:hover video{transform:scale(1.04)}
+.tile-media.live img{opacity:0}
+.tile-media.px img,.tile-media.px video{image-rendering:pixelated}
+.tile-media::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.7),rgba(0,0,0,0) 55%);pointer-events:none}
+.tile-cap{position:absolute;left:22px;right:22px;bottom:20px;z-index:2}
+.tile-cap b{display:block;font-family:var(--serif);font-size:clamp(22px,2.2vw,28px);font-weight:500;letter-spacing:-.02em;line-height:1.05}
+.tile-no{position:absolute;left:22px;top:18px;z-index:2;font-size:13px;font-weight:600;letter-spacing:.08em;background:rgba(0,0,0,.45);padding:4px 9px;border-radius:4px}
+.mini-hint{position:absolute;right:16px;top:16px;z-index:2;font-size:12px;font-weight:600;background:rgba(0,0,0,.45);padding:4px 9px;border-radius:4px;transition:opacity .3s}
+.tile-media.live .mini-hint{opacity:0}
+.soon{position:absolute;inset:0;background:repeating-linear-gradient(135deg,#1c1d22 0 14px,#202128 14px 28px)}
+.tile-body{padding:18px 2px 0}
+.tile-body .badge{margin-bottom:6px}
+.tile-body p{margin:0 0 14px;color:var(--mute);font-size:15px}
+.tile-links{display:flex;gap:22px;flex-wrap:wrap}
+.link--acc{color:var(--acc)}
+
+/* ===== İletişim ===== */
+.contact h3{font-family:var(--serif);font-size:clamp(42px,6.4vw,84px);font-weight:500;letter-spacing:-.035em;line-height:1;margin:0 0 20px}
+.contact h3 em{font-style:italic;color:var(--acc);font-weight:400}
+.contact > div > p{color:var(--mute);margin:0 0 30px;font-size:18px}
+.mail-big{display:inline-block;font-family:var(--serif);font-size:clamp(22px,3.4vw,36px);text-decoration:none;position:relative;margin-bottom:30px;word-break:break-all}
+.mail-big::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--fg);transform-origin:right;transition:transform .45s cubic-bezier(.6,0,.2,1)}
+.mail-big:hover::after{transform:scaleX(0)}
+.mail-big:hover{color:var(--acc)}
+.copy .ok{display:none}
+.copy.done{background:var(--acc);border-color:var(--acc);color:#fff}
+.copy.done .ok{display:inline}.copy.done .no{display:none}
+.socials{display:flex;gap:28px;flex-wrap:wrap;margin-top:34px}
+footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:28px 0 40px;font-size:14px;color:var(--mute)}
+footer a{text-decoration:none}footer a:hover{color:var(--fg)}
+@keyframes up{from{opacity:0;transform:translateY(14px)}}
+
+/* ===== Proje penceresi ===== */
+dialog{border:0;padding:0;margin:auto;width:min(880px,calc(100% - 24px));max-height:calc(100% - 24px);border-radius:10px;background:var(--card);color:var(--fg);box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:auto;overscroll-behavior:contain}
+dialog::backdrop{background:rgba(10,10,12,.55);backdrop-filter:blur(4px)}
+dialog[open]{animation:dlgIn .45s cubic-bezier(.2,.8,.3,1.1)}
+dialog[open]::backdrop{animation:fade .3s}
+dialog.closing{animation:dlgOut .25s ease-in forwards}
+dialog.closing::backdrop{animation:fade .25s reverse forwards}
+@keyframes dlgIn{from{opacity:0;transform:translateY(40px) scale(.96)}}
+@keyframes dlgOut{to{opacity:0;transform:translateY(24px) scale(.97)}}
+@keyframes fade{from{opacity:0}}
+.d-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 14px 24px;background:color-mix(in srgb,var(--card) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.d-head b{font-family:var(--serif);font-size:22px;font-weight:500}
+.x{width:40px;height:40px;padding:0;justify-content:center;font-size:16px}
+.d-body{padding:24px}
+.d-body > *{animation:up .5s both}
+.d-body > *:nth-child(2){animation-delay:.06s}.d-body > *:nth-child(3){animation-delay:.12s}.d-body > *:nth-child(4){animation-delay:.18s}.d-body > *:nth-child(n+5){animation-delay:.24s}
+@keyframes up{from{opacity:0;transform:translateY(14px)}}
+.d-video{width:100%;aspect-ratio:16/9;border-radius:6px;background:#000}
+.d-sec{margin-top:30px}
+.d-sec h4{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 12px}
+.d-sec > p{margin:0}
+.d-facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.d-facts span{font-size:14px;background:var(--bg);border-radius:6px;padding:8px 12px}
+.d-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.d-facts span em{font-style:normal;color:var(--mute);margin-right:6px}
+/* Kararlar: akordeon */
+.dec{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.dec[open]{border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.dec summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;align-items:center;gap:14px;font-weight:600}
+.dec summary::-webkit-details-marker{display:none}
+.dec summary small{display:block;font-weight:500;font-size:13px;color:var(--mute)}
+.dec summary .n{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--acc-soft);color:var(--acc);font-size:14px}
+.dec summary .pl{margin-left:auto;width:22px;height:22px;position:relative;flex:none;transition:transform .3s}
+.dec summary .pl::before,.dec summary .pl::after{content:"";position:absolute;left:4px;right:4px;top:10px;height:2px;background:var(--mute);border-radius:2px}
+.dec summary .pl::after{transform:rotate(90deg);transition:transform .3s}
+.dec[open] summary .pl::after{transform:rotate(0)}
+.dec-in{padding:0 18px 18px 64px;display:grid;gap:10px;animation:up .35s}
+.dec-in p{margin:0;color:var(--mute)}
+.dec-in p b{color:var(--fg);font-weight:600}
+.next{background:var(--acc-soft);border-radius:8px;padding:20px}
+.next p{margin:0 0 14px}
+.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gallery button{padding:0;border:0;border-radius:6px;overflow:hidden;cursor:zoom-in;background:#000;aspect-ratio:16/9}
+.gallery img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.gallery button:hover img{transform:scale(1.05)}
+.gallery.px img{image-rendering:pixelated}
+/* Büyük görsel */
+.lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.lb.on{opacity:1;pointer-events:auto}
+.lb img{max-height:88vh;border-radius:12px;transform:scale(.94);transition:transform .3s cubic-bezier(.3,.7,.4,1.3)}
+.lb.on img{transform:none}
+.lb.px img{image-rendering:pixelated}
+
+/* ===== Kaydırınca beliren öğeler ===== */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.toast{position:fixed;left:50%;bottom:24px;z-index:120;transform:translate(-50%,20px);opacity:0;background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:6px;font-size:14px;font-weight:600;transition:.3s cubic-bezier(.3,.7,.4,1.4);pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1100px){.grid{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){
+  .wrap{padding:0 20px}
+  .hero{grid-template-columns:1fr;gap:40px;padding:48px 0 52px}
+  .avatar{width:170px;height:170px;margin-left:24px;margin-top:24px}
+  .ring{inset:-26px}
+  .sec{grid-template-columns:1fr;gap:20px;padding:56px 0}
+  .sec-label{position:static}
+  .sec-label span{font-size:32px}
+  .feat-info{grid-template-columns:1fr;gap:20px}
+  .grid{grid-template-columns:1fr 1fr}
+  .facts{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  body{font-size:16px}
+  .nav-links{gap:16px}
+  .nav-name{display:none}
+  .nav .wrap{justify-content:flex-end}
+  .lead{font-size:18px}
+  .play{padding:18px}.play span{width:60px;height:60px}
+  .d-body{padding:16px}
+  .dec-in{padding:0 16px 16px}
+  .gallery{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+
+/* ===== Ek animasyonlar ===== */
+/* Üstte kaydırma ilerleme çubuğu */
+.progress{position:fixed;left:0;top:0;height:3px;width:100%;z-index:60;background:var(--acc);transform-origin:left;transform:scaleX(0);box-shadow:0 0 12px rgba(226,38,47,.7)}
+/* Arka planda süzülen kıvılcımlar */
+#embers{position:fixed;inset:0;z-index:-1;pointer-events:none}
+/* İsim harf harf belirir */
+h1 .ch{display:inline-block;opacity:0;transform:translateY(.5em) rotate(6deg);animation:chIn .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes chIn{to{opacity:1;transform:none}}
+h1 em{display:inline-block}
+/* Bölüm numarası: çizgi uzar */
+.sec-label span{position:relative}
+.sec-label span::after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:48px;background:var(--acc);transform:scaleX(0);transform-origin:left;transition:transform .8s .2s cubic-bezier(.6,0,.2,1)}
+.sec-label.in span::after{transform:scaleX(1)}
+/* Karolar sırayla gelir ve fareye göre eğilir */
+.grid .tile.rv{transition-delay:calc(var(--i,0) * 120ms)}
+.tile-media{transform-style:preserve-3d;transition:transform .25s ease-out,box-shadow .3s}
+.tile-media:hover{box-shadow:0 18px 50px rgba(226,38,47,.25)}
+.tile-media .glare{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.18),transparent 45%);opacity:0;transition:opacity .3s}
+.tile-media:hover .glare{opacity:1}
+/* Başlık kelimeleri yukarı kayarak gelir */
+.contact h3 .w{display:inline-block;opacity:0;transform:translateY(40%);transition:opacity .6s,transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i) * 90ms)}
+.contact h3.in .w{opacity:1;transform:none}
+/* Mıknatıs butonlar */
+.btn{will-change:transform}
+/* Banner kaydırınca hafif paralaks */
+.banner img{will-change:transform}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="wrap">
+    <a class="nav-name" href="#top">Emin <em>Coşkun</em></a>
+    <div class="nav-links">
+      <a href="#hakkimda" data-t="nav.about">Hakkımda</a>
+      <a href="#oyunlar" data-t="nav.games">Oyunlar</a>
+      <a href="#iletisim" data-t="nav.contact">İletişim</a>
+      <div class="lang" id="langSw" role="group" aria-label="Dil / Language" data-on="tr"><button type="button" data-lang="tr" lang="tr" aria-pressed="true" title="Türkçe">TR</button><button type="button" data-lang="en" lang="en" aria-pressed="false" title="English">EN</button></div>
+    </div>
+  </div>
+</nav>
+
+<div class="progress" id="progress"></div>
+<canvas id="embers" aria-hidden="true"></canvas>
+<main class="wrap" id="top">
+  <!-- En üstte banner -->
+  <div class="banner"><img src="assets/banner.webp" alt="Muhammed Emin Coşkun banner" width="1400" height="350"></div>
+
+  <!-- Giriş: solda yuvarlak fotoğraf, sağda isim -->
+  <header class="hero">
+    <div class="avatar" id="avatar" role="img" aria-label="Muhammed Emin Coşkun'un fotoğrafı">
+      <svg class="ring" viewBox="0 0 300 300" aria-hidden="true"><defs><path id="circ" d="M150,150 m-132,0 a132,132 0 1,1 264,0 a132,132 0 1,1 -264,0"/></defs><text><textPath href="#circ">Game Designer · Oyun Tasarımcısı · Red Panda Entertainment · </textPath></text></svg>
+      <img src="assets/emin.webp" alt="" width="864" height="1080">
+      <span class="hi" aria-hidden="true" data-t="hi">Selam! 👋</span>
+    </div>
+    <div class="hero-text">
+      <div class="status"><i></i><span data-t="status">Staj ve junior pozisyonlara açığım</span></div>
+      <h1>Muhammed Emin <em>Coşkun</em></h1>
+      <p class="lead" data-t="lead"><b>Oyun tasarımcısı</b> ve Red Panda Entertainment'ın kurucusu. Mekanikler, oyun sistemleri ve oyuncuyu "bir daha" dedirten döngüler tasarlıyorum.</p>
+      <div class="cta">
+        <a class="btn btn--acc" href="#oyunlar"><span data-t="cta.games">Oyunlarım</span> <span class="arr">↓</span></a>
+        <a class="btn" href="#iletisim" data-t="cta.contact">İletişime geç</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 01 Hakkımda -->
+  <section id="hakkimda" class="sec">
+    <div class="sec-label rv"><span>01</span><b data-t="nav.about">Hakkımda</b></div>
+    <div>
+      <p class="about-text rv" data-t="about">Kahramanmaraş Sütçü İmam Üniversitesi'nde Dijital Oyun Tasarımı 3. sınıf öğrencisiyim ve bağımsız stüdyom Red Panda Entertainment'ı yürütüyorum. En çok mekanik tasarımı ve oyun sistemleri üzerine çalışmayı seviyorum: fikirleri hızlıca oynanabilir hâle getirir, sayılarla dengelerim. Mortis Loop'un demosunu Steam'de yayınladım.</p>
+      <dl class="facts rv">
+        <div><dt data-t="f.school">Okul</dt><dd data-t="f.school.v">KSÜ · Dijital Oyun Tasarımı</dd></div>
+        <div><dt data-t="f.studio">Stüdyo</dt><dd data-t="f.studio.v">Red Panda Entertainment, kurucu</dd></div>
+        <div><dt data-t="f.loc">Konum</dt><dd data-t="f.loc.v">İzmir · uzaktan çalışmaya açık</dd></div>
+        <div><dt data-t="f.now">Şu an</dt><dd data-t="f.now.v">Mortis Loop ve FIRUZE</dd></div>
+      </dl>
+      <div class="skills rv" lang="en"><span>Unity</span><span>C#</span><span>Blender</span><span>Aseprite</span><span>Photoshop</span><span>GameMaker</span><span>Machinations.io</span><span>Steamworks</span></div>
+    </div>
+  </section>
+
+  <!-- 02 Oyunlar (öne çıkan bölüm şimdilik kapalı: bir oyuna featured: true yazınca geri gelir) -->
+  <section id="oyunlar" class="sec">
+    <div class="sec-label rv"><span>02</span><b data-t="nav.games">Oyunlar</b></div>
+    <div>
+      <div id="featured"></div>
+      <div class="grid" id="others"></div>
+    </div>
+  </section>
+
+  <!-- 04 İletişim -->
+  <section id="iletisim" class="sec contact">
+    <div class="sec-label rv"><span>03</span><b data-t="nav.contact">İletişim</b></div>
+    <div>
+      <h3 class="rv" data-t="c.title">Birlikte bir oyun <em>yapalım.</em></h3>
+      <p class="rv" data-t="c.text">Staj, junior pozisyon ya da bir proje için yazabilirsin.</p>
+      <a class="mail-big rv" href="mailto:coskunmuhammed090@gmail.com">coskunmuhammed090@gmail.com</a>
+      <div class="btns rv">
+        <a class="btn btn--acc" href="mailto:coskunmuhammed090@gmail.com"><span data-t="c.mail">E-posta gönder</span> <span class="arr">↗</span></a>
+        <button class="btn copy" id="copy" type="button"><span class="no" data-t="c.copy">Adresi kopyala</span><span class="ok" data-t="c.copied">Kopyalandı ✓</span></button>
+      </div>
+      <div class="socials rv">
+        <a class="link" href="https://www.linkedin.com/in/muhammed-emin-coskun/" target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
+        <a class="link" href="https://tecmo35.itch.io/" target="_blank" rel="noopener">itch.io <span class="arr">↗</span></a>
+        <a class="link" href="https://www.youtube.com/@RedPandaGameDev" target="_blank" rel="noopener">YouTube <span class="arr">↗</span></a>
+        <a class="link" href="https://www.instagram.com/cskn.emin03/" target="_blank" rel="noopener">Instagram <span class="arr">↗</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap"><span>© 2026 Muhammed Emin Coşkun · Red Panda Entertainment</span><a href="#top" data-t="top">Başa dön ↑</a></footer>
+
+<dialog id="dlg" aria-labelledby="dTitle">
+  <div class="d-head"><b id="dTitle"></b><button class="btn x" type="button" id="dClose" aria-label="Kapat" data-ta="close">✕</button></div>
+  <div class="d-body" id="dBody"></div>
+</dialog>
+<div class="lb" id="lb" role="dialog" aria-label="Büyük görsel"><img alt=""></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  // =====================================================================
+  // DÜZENLENEBİLİR İÇERİK: oyunlar bu listeden üretilir
+  // =====================================================================
+  var GAMES = [
+    {
+      id: 'mortis-loop', featured: false, title: 'Mortis Loop', badge: 'Demo Steam\'de', px: true,
+      summary: 'Ölüm döngüsü üzerine kurulu, pixel-art bir 2D aksiyon platformer. Köyünde ölüp tekrar uyanan Kael, döngünün cevabını arar.',
+      tags: ['2D platformer', 'Unity · C#', '2026'],
+      loop: 'assets/mortis/loop.mp4', poster: 'assets/mortis/koy.webp',
+      trailer: 'assets/mortis/fragman.mp4', trailerPoster: 'assets/mortis/menu.webp',
+      facts: [['Tür', '2D aksiyon platformer'], ['Yıl', '2026'], ['Araçlar', 'Unity, C#, Aseprite, Machinations.io']],
+      role: 'Projede tek başıma çalıştım. Oynanış ve seviye tasarımı, C# ile Unity geliştirmesi, Aseprite ile pixel art, hikâye ve Steam yayın süreci bana ait.',
+      decisions: [
+        ['Oynanış tasarımı', 'Basit hareket, adil ölüm', 'Oyuncu her ölümde aynı bölümü baştan oynuyor. Çift zıplama gibi gelişmiş mekanikler cazipti, ama onlarca kez tekrarlanan karmaşık kontroller ölümleri “adil olmayan” hissettirirdi.', 'Fizik tabanlı, tek zıplamalı, basit ve öngörülebilir bir hareket sisteminde karar kıldım.', 'Oyuncu suçu kontrollere değil kendi hatasına bağlıyor ve “bir daha deneyeyim” diyor. Ölüm döngüsü ceza değil, öğrenme aracı oldu.'],
+        ['Anlatı tasarımı', 'Mekaniği hikâyeye bağlamak', 'Ölüm döngüsü ilk aşamada sadece bir oynanış kuralıydı; hikâyeyle bağı yoktu.', 'Hikâyeyi döngünün üzerine kurdum: Kael köyünde ölüyor, ölerek öğreniyor ve oyun başladığı köyde, kendi serbest bıraktığı felakete karşı son savaşla bitiyor.', 'Ölüm keyfi bir sistem değil, dünyanın parçası gibi hissettiriyor. Oyunun kimliği netleşti: “Öl. Öğren. Tekrar dene.”'],
+        ['Görsel tasarım', 'Küçük bir odaya derinlik', 'Açılış sahnesi olan Kael’in evi tek katmanlı arka planla düz ve cansız görünüyordu.', 'Sahneyi üç katmana ayırıp parallax kurdum, ön plan objelerini karakteri kapatmayacak şekilde kenarlara yerleştirdim, şömineye titreyen sıcak bir ışık ekledim.', 'Küçük oda derinlikli ve yaşayan bir mekân oldu; “huzurlu köy” hissi sonradan gelen yıkımın etkisini güçlendiriyor.']
+      ],
+      next: 'Demo, oyunun fikrini kanıtladı. Şimdi Mortis Loop’u baştan, daha güçlü bir temelle yeniden geliştirmek istiyorum. Bunun için bir 2D çizerle çalışmayı hedefliyorum.',
+      nextBtn: '2D çizersen, yaz',
+      gallery: [['assets/mortis/menu.webp', 'Ana menü'], ['assets/mortis/koy.webp', 'Köy'], ['assets/mortis/ciftci.webp', 'Çiftçiyle diyalog'], ['assets/mortis/oda.webp', 'Kael\'in odası']],
+      links: [['Steam\'de oyna', 'https://store.steampowered.com/app/4651850/']]
+    },
+    {
+      id: 'firuze', title: 'FIRUZE: The Art of Clay', badge: 'Geliştiriliyor',
+      summary: 'Birinci şahıs bir İznik çini atölyesi simülasyonu. Büyükannenin kapanmış atölyesini devral; şekillendir, boya, pişir ve sat.',
+      tags: ['Atölye simülasyonu', 'Birinci şahıs', 'Unity · C#', '2026'],
+      loop: 'assets/firuze/loop.mp4', poster: 'assets/firuze/dukkan.webp',
+      trailer: 'assets/firuze/fragman.mp4', trailerPoster: 'assets/firuze/dukkan.webp',
+      facts: [['Tür', 'Atölye simülasyonu'], ['Yıl', '2026'], ['Araçlar', 'Unity, C#']],
+      role: null, decisions: null,
+      gallery: [['assets/firuze/dukkan.webp', 'Dükkânın dışı'], ['assets/firuze/sekillendir.webp', 'Çarkta şekillendirme'], ['assets/firuze/tabak.webp', 'Boyanmış çini tabak'], ['assets/firuze/firin.webp', 'Fırında pişirme'], ['assets/firuze/vitrin.webp', 'Vitrin ve müşteri'], ['assets/firuze/defter.webp', 'Atölye defteri']],
+      links: [['itch.io\'da indir', 'https://gedikmemoli.itch.io/firuze']]
+    },
+    {
+      id: 'the-last-shinobi', title: 'The Last Shinobi', badge: 'itch.io\'da yayında',
+      summary: 'GameMaker ile geliştirdiğim 2D aksiyon platform oyunu. Windows sürümü itch.io\'da. Bir oyun motorunun nasıl çalıştığını ve geliştirme sürecini baştan sona bu projede öğrendim.',
+      tags: ['Aksiyon platform', 'GameMaker', '2024'],
+      px: true, loop: 'assets/shinobi/loop.mp4', poster: 'assets/shinobi/orman.webp',
+      facts: [['Tür', 'Aksiyon platform'], ['Yıl', '2024'], ['Araçlar', 'GameMaker']],
+      role: null, decisions: null,
+      gallery: [['assets/shinobi/menu.webp', 'Ana menü'], ['assets/shinobi/orman.webp', 'Orman bölümü'], ['assets/shinobi/kar.webp', 'Karlı dağlar'], ['assets/shinobi/harabe.webp', 'Harabeler'], ['assets/shinobi/boss.webp', 'Boss savaşı']],
+      links: [['itch.io\'da indir', 'https://tecmo35.itch.io/the-last-shinobi']]
+    }
+  ];
+
+  // =====================================================================
+  // DİL DESTEĞİ: Türkçe metinler HTML'de, İngilizceleri burada
+  // =====================================================================
+  var EN = {
+    'nav.about': 'About', 'nav.games': 'Games', 'nav.contact': 'Contact', 'hi': 'Hi! 👋',
+    'status': 'Open to internships and junior roles',
+    'lead': '<b>Game designer</b> and founder of Red Panda Entertainment. I design mechanics, game systems and the loops that make players say "one more time".',
+    'cta.games': 'My games', 'cta.contact': 'Get in touch',
+    'about': 'I\'m a third-year Digital Game Design student at Kahramanmaraş Sütçü İmam University and I run my independent studio, Red Panda Entertainment. I love working on mechanics and game systems: I turn ideas into something playable fast and balance them with numbers. I released the Mortis Loop demo on Steam.',
+    'f.school': 'School', 'f.school.v': 'KSÜ · Digital Game Design', 'f.studio': 'Studio', 'f.studio.v': 'Red Panda Entertainment, founder',
+    'f.loc': 'Location', 'f.loc.v': 'İzmir, Türkiye · open to remote', 'f.now': 'Now', 'f.now.v': 'Mortis Loop and FIRUZE',
+    'h.feat': 'Featured project', 'h.others': 'Other games',
+    'c.title': 'Let\'s make a game <em>together.</em>', 'top': 'Back to top ↑', 'c.text': 'Reach out for an internship, a junior role or a project.',
+    'c.mail': 'Send an email', 'c.copy': 'Copy address', 'c.copied': 'Copied ✓', 'close': 'Close',
+    // Kod içindeki arayüz metinleri
+    'watch': 'Watch trailer', 'play': 'Play trailer', 'details': 'View details', 'view': 'View', 'soon': 'Visuals coming soon',
+    'hover': '▶ Hover to preview', 'open': ' — open project', 'role': 'My role', 'decisions': 'Design decisions', 'next': 'What\'s next',
+    'gallery': 'Gallery', 'problem': 'Problem.', 'decision': 'Decision.', 'result': 'Result.', 'nomedia': 'Gameplay footage coming soon.',
+    'zoom': ' — enlarge image', 'copiedMsg': ' copied'
+  };
+  var TR = {
+    'watch': 'Fragmanı izle', 'play': 'Fragmanı oynat', 'details': 'Detayları incele', 'view': 'İncele', 'soon': 'Görseller yakında',
+    'hover': '▶ Önizleme için üstüne gel', 'open': ' projesini aç', 'role': 'Rolüm', 'decisions': 'Tasarım kararları', 'next': 'Sırada ne var',
+    'gallery': 'Galeri', 'problem': 'Problem.', 'decision': 'Karar.', 'result': 'Sonuç.', 'nomedia': 'Oynanış görüntüleri yakında eklenecek.',
+    'zoom': ' görselini büyüt', 'copiedMsg': ' kopyalandı', 'close': 'Kapat'
+  };
+  // Oyunların İngilizce metinleri (boş bırakılan alan Türkçesiyle kalır)
+  var GAMES_EN = {
+    'mortis-loop': {
+      badge: 'Demo on Steam',
+      summary: 'A pixel-art 2D action platformer built around a death loop. Kael dies in his village, wakes up again and searches for the answer to the loop.',
+      tags: ['2D platformer', 'Unity · C#', '2026'],
+      facts: [['Genre', '2D action platformer'], ['Year', '2026'], ['Tools', 'Unity, C#, Aseprite, Machinations.io']],
+      role: 'I built the project solo: gameplay and level design, Unity development in C#, pixel art in Aseprite, the story and the Steam release.',
+      decisions: [
+        ['Gameplay design', 'Simple movement, fair deaths', 'Players replay the same level after every death. Advanced moves like a double jump were tempting, but complex controls repeated dozens of times would make deaths feel unfair.', 'I settled on a physics-based, single-jump movement system that is simple and predictable.', 'Players blame their own mistakes, not the controls, and want to try again. The death loop became a learning tool instead of a punishment.'],
+        ['Narrative design', 'Tying the mechanic to the story', 'At first the death loop was only a gameplay rule with no link to the story.', 'I built the story around the loop: Kael dies in his village, learns by dying, and the game ends back in that village with a final battle against the disaster he set free.', 'Death feels like part of the world rather than an arbitrary system. The game\'s identity became clear: "Die. Learn. Try again."'],
+        ['Visual design', 'Depth in a small room', 'The opening scene, Kael\'s house, looked flat and lifeless with a single-layer background.', 'I split the scene into three parallax layers, kept foreground props at the edges so they never hide the character, and added a warm flickering light to the fireplace.', 'The small room now feels deep and alive; the "peaceful village" mood makes the destruction that follows hit harder.']
+      ],
+      next: 'The demo proved the idea. Now I want to rebuild Mortis Loop from scratch on a stronger foundation, and I\'m looking to work with a 2D artist.',
+      nextBtn: 'Are you a 2D artist? Get in touch',
+      gallery: ['Main menu', 'Village', 'Talking to the farmer', 'Kael\'s room'],
+      links: ['Play on Steam']
+    },
+    'firuze': {
+      badge: 'In development',
+      summary: 'A first-person İznik tile workshop simulation. Take over your grandmother\'s closed workshop; shape, paint, fire and sell.',
+      tags: ['Workshop sim', 'First person', 'Unity · C#', '2026'],
+      facts: [['Genre', 'Workshop simulation'], ['Year', '2026'], ['Tools', 'Unity, C#']],
+      links: ['Download on itch.io'],
+      gallery: ['Shop exterior', 'Shaping on the wheel', 'Painted tile plate', 'Firing in the kiln', 'Display case and customer', 'Workshop notebook']
+    },
+    'the-last-shinobi': {
+      badge: 'Out on itch.io',
+      summary: 'A 2D action platformer I built with GameMaker, now on itch.io for Windows. This project taught me how a game engine works and the whole development process end to end.',
+      tags: ['Action platformer', 'GameMaker', '2024'],
+      facts: [['Genre', 'Action platformer'], ['Year', '2024'], ['Tools', 'GameMaker']],
+      links: ['Download on itch.io'],
+      gallery: ['Main menu', 'Forest level', 'Snowy mountains', 'Ruins', 'Boss fight']
+    }
+  };
+
+  var lang = 'tr';
+  function T(k) { return (lang === 'en' ? EN[k] : TR[k]) || TR[k] || k; }
+  // Seçili dile göre oyunun birleşik hâli
+  function L(g) {
+    if (lang !== 'en' || !GAMES_EN[g.id]) return g;
+    var e = GAMES_EN[g.id], o = {};
+    for (var k in g) o[k] = g[k];
+    ['badge', 'summary', 'tags', 'facts', 'role', 'decisions', 'next', 'nextBtn'].forEach(function (k) { if (e[k] && g[k] != null) o[k] = e[k]; });
+    if (e.gallery) o.gallery = g.gallery.map(function (p, i) { return [p[0], e.gallery[i] || p[1]]; });
+    if (e.links) o.links = g.links.map(function (l, i) { return [e.links[i] || l[0], l[1]]; });
+    return o;
+  }
+
+  function renderGames(instant) {
+  // ----- Öne çıkan oyun: listedeki "featured: true" olan -----
+  var F0 = GAMES.filter(function (g) { return g.featured; })[0];
+  var FEAT = F0 ? L(F0) : null;
+  var OTHERS = GAMES.filter(function (g) { return !FEAT || g.id !== FEAT.id; }).map(L);
+  $('#featured').style.display = FEAT ? '' : 'none';
+  if (FEAT) {
+  function chipsOf(g) { return '<ul class="tags">' + g.tags.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'; }
+  function linksOf(g) { return g.links.map(function (l) { return '<a class="btn" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span class="arr">↗</span></a>'; }).join(''); }
+  $('#featured').innerHTML = '<article class="rv">' +
+    '<div class="feat-video' + (FEAT.px ? ' px' : '') + '" id="featVid"><video src="' + FEAT.trailer + '" poster="' + FEAT.trailerPoster + '" playsinline preload="metadata"></video>' +
+    '<button class="play" type="button" aria-label="' + T('play') + '"><div><span></span><em>' + T('watch') + '</em></div></button></div>' +
+    '<div class="feat-info"><div><span class="badge">' + esc(FEAT.badge) + '</span><h3 lang="en">' + esc(FEAT.title) + '</h3><p>' + esc(FEAT.summary) + '</p>' +
+    '<div class="btns"><button class="btn btn--acc" type="button" data-open="' + FEAT.id + '" data-noplay>' + T('details') + ' <span class="arr">→</span></button>' + linksOf(FEAT) + '</div></div>' +
+    '<dl class="rows">' + FEAT.facts.map(function (f) { return '<div><dt>' + esc(f[0]) + '</dt><dd>' + esc(f[1]) + '</dd></div>'; }).join('') + '</dl></div></article>';
+  // Büyük video: oynat butonuna basınca sesli fragman başlar
+  fv = $('#featVid'); fvv = $('video', fv);
+  $('.play', fv).addEventListener('click', function () { fv.classList.add('playing'); fvv.controls = true; fvv.play(); });
+  fvv.addEventListener('ended', function () { fv.classList.remove('playing'); fvv.controls = false; fvv.load(); });
+  } else { fv = fvv = null; }
+
+  $('#others').innerHTML = OTHERS.map(function (g, i) {
+    var media = g.loop
+      ? '<img src="' + g.poster + '" alt="" loading="lazy"><video muted loop playsinline preload="none" data-src="' + g.loop + '"></video><span class="mini-hint">' + T('hover') + '</span>'
+      : '<span class="soon"></span><span class="mini-hint">' + T('soon') + '</span>';
+    return '<article class="tile rv">' +
+      '<button class="tile-media' + (g.px ? ' px' : '') + '" type="button" data-open="' + g.id + '" aria-label="' + esc(g.title) + T('open') + '">' + media +
+      '<span class="tile-no">0' + (i + (FEAT ? 2 : 1)) + '</span><span class="tile-cap"><b lang="en">' + esc(g.title) + '</b></span></button>' +
+      '<div class="tile-body"><span class="badge">' + esc(g.badge) + '</span><p>' + esc(g.summary) + '</p>' +
+      '<div class="tile-links"><button class="link" type="button" data-open="' + g.id + '">' + T('view') + ' <span class="arr">→</span></button>' +
+      g.links.map(function (l) { return '<a class="link link--acc" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span class="arr">↗</span></a>'; }).join('') + '</div></div></article>';
+  }).join('');
+  // Küçük kartlar: üstüne gelince (telefonda görünür olunca) önizleme videosu döner
+  var touch = !matchMedia('(hover:hover)').matches;
+  $$('#others .tile-media').forEach(function (m) {
+    var v = $('video', m); if (!v) return;
+    function on() { if (!v.src) { v.src = v.getAttribute('data-src'); v.addEventListener('playing', function () { if (!v.paused) m.classList.add('live'); }); } var p = v.play(); if (p && p.catch) p.catch(function () {}); if (v.readyState > 2) m.classList.add('live'); }  // görsel, video gerçekten oynamaya başlayınca gizlenir
+    function off() { v.pause(); m.classList.remove('live'); }
+    if (touch && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { es.forEach(function (en) { en.isIntersecting && en.intersectionRatio > .6 ? on() : off(); }); }, { threshold: [0, .6] }).observe(m);
+      var mh = $('.mini-hint', m); if (mh) mh.remove();
+    } else { m.addEventListener('mouseenter', on); m.addEventListener('mouseleave', off); m.addEventListener('focus', on); m.addEventListener('blur', off); }
+  });
+  // Dil değişince yeni kartlar beklemeden görünsün, yoksa kaydırınca belirsin
+  $$('#featured .rv, #others .rv').forEach(function (el) { if (instant) el.classList.add('in'); else if (window.__io) window.__io.observe(el); });
+  }
+  var fv, fvv;
+
+  // ----- Proje penceresi -----
+  var dlg = $('#dlg'), dBody = $('#dBody');
+  function openGame(id) {
+    var g = GAMES.filter(function (x) { return x.id === id; })[0]; if (!g) return; g = L(g);
+    $('#dTitle').textContent = g.title;
+    var h = '';
+    if (g.trailer) h += '<video class="d-video" controls playsinline preload="metadata" src="' + g.trailer + '" poster="' + g.trailerPoster + '"></video>';
+    h += '<div><p style="margin:20px 0 0;font-size:18px">' + esc(g.summary) + '</p><div class="d-facts">' + g.facts.map(function (f) { return '<span><em>' + esc(f[0]) + '</em>' + esc(f[1]) + '</span>'; }).join('') + '</div>' +
+      (g.links.length ? '<div class="d-links">' + g.links.map(function (l) { return '<a class="btn btn--acc" href="' + l[1] + '" target="_blank" rel="noopener">' + esc(l[0]) + ' <span class="arr">↗</span></a>'; }).join('') + '</div>' : '') + '</div>';
+    if (g.role) h += '<div class="d-sec"><h4>' + T('role') + '</h4><p>' + esc(g.role) + '</p></div>';
+    if (g.decisions) h += '<div class="d-sec"><h4>' + T('decisions') + '</h4>' + g.decisions.map(function (d, i) {
+      return '<details class="dec"' + (i === 0 ? ' open' : '') + '><summary><span class="n">' + (i + 1) + '</span><span>' + esc(d[1]) + '<small>' + esc(d[0]) + '</small></span><span class="pl" aria-hidden="true"></span></summary>' +
+        '<div class="dec-in"><p><b>' + T('problem') + '</b> ' + esc(d[2]) + '</p><p><b>' + T('decision') + '</b> ' + esc(d[3]) + '</p><p><b>' + T('result') + '</b> ' + esc(d[4]) + '</p></div></details>';
+    }).join('') + '</div>';
+    if (g.next) h += '<div class="d-sec"><h4>' + T('next') + '</h4><div class="next"><p>' + esc(g.next) + '</p><button class="btn btn--acc" type="button" data-go="iletisim">' + esc(g.nextBtn) + ' <span class="arr">→</span></button></div></div>';
+    if (g.gallery.length) h += '<div class="d-sec"><h4>' + T('gallery') + '</h4><div class="gallery' + (g.px ? ' px' : '') + '">' + g.gallery.map(function (p) { return '<button type="button" data-zoom="' + p[0] + '" aria-label="' + esc(p[1]) + T('zoom') + '"><img src="' + p[0] + '" alt="' + esc(p[1]) + '" loading="lazy"></button>'; }).join('') + '</div></div>';
+    if (!g.trailer && !g.gallery.length) h += '<div class="d-sec"><p style="color:var(--mute)">' + T('nomedia') + '</p></div>';
+    dBody.innerHTML = h;
+    $('#lb').classList.toggle('px', !!g.px);
+    dlg.showModal(); dlg.scrollTop = 0;
+    // Fragman tıklayınca kendiliğinden başlar; ses açmak için kontrol çubuğu var
+    var dv = $('.d-video', dBody);
+    if (dv) { if (fvv) fvv.pause(); dv.muted = true; var pr = dv.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    history.replaceState(null, '', '#' + id);
+  }
+  function closeGame(after) {
+    if (!dlg.open) return;
+    $$('video', dBody).forEach(function (v) { v.pause(); });
+    dlg.classList.add('closing');
+    setTimeout(function () { dlg.classList.remove('closing'); dlg.close(); history.replaceState(null, '', location.pathname + location.search); if (after) after(); }, 230);
+  }
+  $('#dClose').addEventListener('click', function () { closeGame(); });
+  dlg.addEventListener('cancel', function (e) { e.preventDefault(); closeGame(); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) closeGame(); });
+
+  // ----- Büyük görsel -----
+  var lb = $('#lb');
+  function closeLb() { lb.classList.remove('on'); }
+  lb.addEventListener('click', closeLb);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && lb.classList.contains('on')) { e.stopPropagation(); closeLb(); } }, true);
+
+  // ----- Tıklamalar: pencere aç, görsel büyüt, iletişime git -----
+  document.addEventListener('click', function (e) {
+    var o = e.target.closest('[data-open]'); if (o) { openGame(o.getAttribute('data-open')); return; }
+    var z = e.target.closest('[data-zoom]'); if (z) { $('img', lb).src = z.getAttribute('data-zoom'); lb.classList.add('on'); return; }
+    var go = e.target.closest('[data-go]'); if (go) closeGame(function () { $('#' + go.getAttribute('data-go')).scrollIntoView({ behavior: 'smooth' }); });
+  });
+
+  // ----- Her butona basınca dalga efekti -----
+  document.addEventListener('pointerdown', function (e) {
+    var b = e.target.closest('.btn'); if (!b) return;
+    var r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2.2, rp = document.createElement('span');
+    rp.className = 'ripple'; rp.style.cssText = 'width:' + s + 'px;height:' + s + 'px;left:' + (e.clientX - r.left - s / 2) + 'px;top:' + (e.clientY - r.top - s / 2) + 'px';
+    b.appendChild(rp); setTimeout(function () { rp.remove(); }, 650);
+  });
+
+  // ----- Fotoğrafa tıklayınca el sallar -----
+  var av = $('#avatar');
+  av.addEventListener('click', function () { av.classList.remove('wave'); void av.offsetWidth; av.classList.add('wave'); setTimeout(function () { av.classList.remove('wave'); }, 1400); });
+
+  // ----- E-posta kopyala -----
+  var toast = $('#toast'), tt;
+  function say(m) { toast.textContent = m; toast.classList.add('on'); clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove('on'); }, 1800); }
+  $('#copy').addEventListener('click', function () {
+    var btn = this, mail = 'coskunmuhammed090@gmail.com';
+    function ok() { btn.classList.add('done'); say(mail + T('copiedMsg')); setTimeout(function () { btn.classList.remove('done'); }, 2000); }
+    if (navigator.clipboard) navigator.clipboard.writeText(mail).then(ok, function () { say(mail); }); else say(mail);
+  });
+
+  // ----- Menü: kaydırınca çizgi ve aktif bölüm -----
+  var nav = $('#nav'), links = $$('.nav-links a');
+  function onScroll() {
+    nav.classList.toggle('scrolled', scrollY > 140);
+    var cur = '';
+    ['hakkimda', 'oyunlar', 'iletisim'].forEach(function (id) { var el = $('#' + id); if (el.getBoundingClientRect().top < innerHeight * 0.4) cur = id; });
+    links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + cur); });
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // ----- Kaydırınca beliren öğeler -----
+  if ('IntersectionObserver' in window) {
+    var io = window.__io = new IntersectionObserver(function (es) { es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }); }, { threshold: 0.12 });
+    $$('.rv').forEach(function (el) { io.observe(el); });
+  } else $$('.rv').forEach(function (el) { el.classList.add('in'); });
+
+  // ----- Dil seçimi: ?lang=en, kayıtlı tercih ya da tarayıcı dili -----
+  var trText = {};
+  $$('[data-t]').forEach(function (el) { trText[el.getAttribute('data-t') + '|' + $$('[data-t]').indexOf(el)] = el.innerHTML; });
+  function setLang(l, anim) {
+    lang = l; document.documentElement.lang = l;
+    $$('[data-t]').forEach(function (el, i) {
+      var k = el.getAttribute('data-t');
+      el.innerHTML = l === 'en' ? EN[k] : trText[k + '|' + i];
+      if (anim) { el.classList.remove('i18n-fade'); void el.offsetWidth; el.classList.add('i18n-fade'); }
+    });
+    $$('[data-ta]').forEach(function (el) { el.setAttribute('aria-label', T(el.getAttribute('data-ta'))); });
+    // Seçili dil vurgulanır: TR seçiliyken TR, EN seçiliyken EN yanar
+    $('#langSw').setAttribute('data-on', l);
+    $$('#langSw button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === l ? 'true' : 'false'); });
+    $('#avatar').setAttribute('aria-label', l === 'en' ? 'Photo of Muhammed Emin Coşkun' : 'Muhammed Emin Coşkun\'un fotoğrafı');
+    document.title = 'Muhammed Emin Coşkun' + (l === 'en' ? ' · Game Designer' : ' · Oyun Tasarımcısı');
+    if (fvv) fvv.pause();
+    renderGames(anim);
+    try { localStorage.setItem('lang', l); } catch (e) {}
+    var u = new URL(location.href); u.searchParams.set('lang', l); history.replaceState(null, '', u);
+  }
+  var start = new URLSearchParams(location.search).get('lang');
+  if (!start) { try { start = localStorage.getItem('lang'); } catch (e) {} }
+  if (!start) start = /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
+  setLang(start === 'en' ? 'en' : 'tr', false);
+  $$('#langSw button').forEach(function (b) { b.addEventListener('click', function () { var l = b.getAttribute('data-lang'); if (l !== lang) setLang(l, true); }); });
+
+  // ----- Linkle gelen proje doğrudan açılır: /#mortis-loop -----
+  var hash = location.hash.slice(1);
+  if (GAMES.some(function (g) { return g.id === hash; })) openGame(hash);
+})();
+</script>
+<script>
+// ===== Ek animasyonlar =====
+(function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var $ = function (q, r) { return (r || document).querySelector(q); }, $$ = function (q, r) { return [].slice.call((r || document).querySelectorAll(q)); };
+
+  // İsim harf harf belirir
+  var h1 = $('h1'), d = 0;
+  (function split(node) {
+    [].slice.call(node.childNodes).forEach(function (n) {
+      if (n.nodeType === 3) {
+        var f = document.createDocumentFragment();
+        n.textContent.split('').forEach(function (c) {
+          if (c === ' ') { f.appendChild(document.createTextNode(' ')); return; }
+          var sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = c;
+          sp.style.animationDelay = (0.25 + d++ * 0.035) + 's'; f.appendChild(sp);
+        });
+        n.replaceWith(f);
+      } else split(n);
+    });
+  })(h1);
+
+  // İletişim başlığı kelime kelime (dil değişince yeniden kurulur)
+  function words() {
+    var h = $('.contact h3'); if (!h || h.querySelector('.w')) return; var i = 0;
+    (function walk(node) {
+      [].slice.call(node.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) {
+          var f = document.createDocumentFragment();
+          n.textContent.split(/(\s+)/).forEach(function (w) {
+            if (!w.trim()) { f.appendChild(document.createTextNode(w)); return; }
+            var sp = document.createElement('span'); sp.className = 'w'; sp.style.setProperty('--i', i++); sp.textContent = w; f.appendChild(sp);
+          });
+          n.replaceWith(f);
+        } else walk(n);
+      });
+    })(h);
+  }
+  words();
+  new MutationObserver(function () { setTimeout(words, 0); }).observe($('.contact h3'), { childList: true });
+  var hio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: .3 });
+  hio.observe($('.contact h3'));
+
+  // Kaydırma çubuğu ve banner paralaksı
+  var bar = $('#progress'), bimg = $('.banner img');
+  function onScroll() {
+    var h = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = 'scaleX(' + (h > 0 ? scrollY / h : 0) + ')';
+    if (bimg && scrollY < 600) bimg.style.transform = 'translateY(' + scrollY * 0.15 + 'px) scale(1.06)';
+  }
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // Karolar: sıra gecikmesi, fareye göre 3D eğilme ve parlama
+  function tiles() {
+    $$('#others .tile').forEach(function (t, i) { t.style.setProperty('--i', i); });
+    $$('#others .tile-media').forEach(function (m) {
+      if (m.__tilt) return; m.__tilt = 1;
+      var g = document.createElement('span'); g.className = 'glare'; m.appendChild(g);
+      m.addEventListener('mousemove', function (e) {
+        var r = m.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        m.style.transform = 'perspective(800px) rotateY(' + (x - .5) * 10 + 'deg) rotateX(' + (.5 - y) * 8 + 'deg) translateY(-4px)';
+        m.style.setProperty('--gx', x * 100 + '%'); m.style.setProperty('--gy', y * 100 + '%');
+      });
+      m.addEventListener('mouseleave', function () { m.style.transform = ''; });
+    });
+  }
+  tiles(); new MutationObserver(tiles).observe($('#others'), { childList: true });
+
+  // Mıknatıs butonlar: imleç yaklaşınca hafifçe çekilir
+  if (matchMedia('(hover:hover)').matches) {
+    document.addEventListener('mousemove', function (e) {
+      var b = e.target.closest && e.target.closest('.btn:not(.x)');
+      $$('.btn.mag').forEach(function (o) { if (o !== b) { o.classList.remove('mag'); o.style.translate = ''; } });
+      if (!b) return;
+      var r = b.getBoundingClientRect();
+      b.classList.add('mag');
+      b.style.translate = ((e.clientX - r.left - r.width / 2) * .18) + 'px ' + ((e.clientY - r.top - r.height / 2) * .25) + 'px';
+    });
+  }
+
+  // Arka planda yükselen kırmızı kıvılcımlar
+  var cv = $('#embers'), cx = cv.getContext('2d'), P = [], W, H, dpr = Math.min(devicePixelRatio || 1, 2);
+  function size() { W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr; cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px'; }
+  size(); addEventListener('resize', size);
+  var N = innerWidth < 700 ? 22 : 45;
+  function spawn(p, init) {
+    p.x = Math.random() * W; p.y = init ? Math.random() * H : H + 10 * dpr;
+    p.r = (Math.random() * 1.8 + .6) * dpr; p.vy = (Math.random() * .4 + .15) * dpr; p.vx = (Math.random() - .5) * .25 * dpr;
+    p.a = Math.random() * .5 + .2; p.t = Math.random() * 6.28; return p;
+  }
+  for (var i = 0; i < N; i++) P.push(spawn({}, true));
+  (function loop() {
+    cx.clearRect(0, 0, W, H);
+    P.forEach(function (p) {
+      p.t += .02; p.y -= p.vy; p.x += p.vx + Math.sin(p.t) * .2 * dpr;
+      if (p.y < -10) spawn(p);
+      var fade = Math.min(1, p.y / (H * .5));
+      cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.283);
+      cx.fillStyle = 'rgba(255,' + (60 + (p.r * 20 | 0)) + ',50,' + (p.a * fade) + ')';
+      cx.shadowColor = 'rgba(226,38,47,.9)'; cx.shadowBlur = 8 * dpr; cx.fill();
+    });
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
+</body>
+</html>
