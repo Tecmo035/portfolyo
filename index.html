@@ -171,6 +171,22 @@ h1 em{font-style:italic;color:var(--acc);font-weight:400}
 .mail-big:hover::after{transform:scaleX(0)}
 .mail-big:hover{color:var(--acc)}
 .copy .ok{display:none}
+/* İletişim formu: butonla açılır */
+.cform{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s cubic-bezier(.2,.8,.2,1),margin .5s;margin-top:0}
+.cform.open{grid-template-rows:1fr;margin-top:28px}
+.cform-in{overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:720px}
+.cform label{display:grid;gap:6px;font-size:14px;color:var(--mute)}
+.cform .full{grid-column:1/-1}
+.cform input,.cform textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--card);border:1.5px solid var(--line);border-radius:6px;padding:12px 14px;transition:border-color .2s,box-shadow .2s;resize:vertical}
+.cform input:focus,.cform textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+.cform .bad{border-color:var(--acc)}
+.cform .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.cform-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.cform-msg{margin:0;font-size:15px}
+.cform-msg.ok{color:#3ccf7a}.cform-msg.err{color:var(--acc)}
+.sending .arr{animation:spinA .8s linear infinite;display:inline-block}
+@keyframes spinA{to{transform:rotate(360deg)}}
+@media (max-width:600px){.cform-in{grid-template-columns:1fr}}
 .copy.done{background:var(--acc);border-color:var(--acc);color:#fff}
 .copy.done .ok{display:inline}.copy.done .no{display:none}
 .socials{display:flex;gap:28px;flex-wrap:wrap;margin-top:34px}
@@ -310,7 +326,7 @@ h1 em{display:inline-block}
 <canvas id="embers" aria-hidden="true"></canvas>
 <main class="wrap" id="top">
   <!-- En üstte banner -->
-  <div class="banner"><img src="assets/banner.webp" alt="Muhammed Emin Coşkun banner" width="1400" height="350"></div>
+  <div class="banner"><img src="assets/banner-emin.webp" alt="Muhammed Emin Coşkun banner" width="1400" height="350"></div>
 
   <!-- Giriş: solda yuvarlak fotoğraf, sağda isim -->
   <header class="hero">
@@ -362,9 +378,22 @@ h1 em{display:inline-block}
       <p class="rv" data-t="c.text">Staj, junior pozisyon ya da bir proje için yazabilirsin.</p>
       <a class="mail-big rv" href="mailto:coskunmuhammed090@gmail.com">coskunmuhammed090@gmail.com</a>
       <div class="btns rv">
-        <a class="btn btn--acc" href="mailto:coskunmuhammed090@gmail.com"><span data-t="c.mail">E-posta gönder</span> <span class="arr">↗</span></a>
+        <button class="btn btn--acc" id="openForm" type="button" aria-expanded="false" aria-controls="cform"><span data-t="c.mail">Mesaj gönder</span> <span class="arr">→</span></button>
         <button class="btn copy" id="copy" type="button"><span class="no" data-t="c.copy">Adresi kopyala</span><span class="ok" data-t="c.copied">Kopyalandı ✓</span></button>
       </div>
+      <!-- İletişim formu: mesaj doğrudan e-postana gelir (FormSubmit) -->
+      <form class="cform" id="cform" novalidate>
+        <div class="cform-in">
+          <label><span data-t="f.name">Adın</span><input name="name" autocomplete="name" required></label>
+          <label><span data-t="f.mail">E-posta adresin</span><input name="email" type="email" autocomplete="email" required></label>
+          <label class="full"><span data-t="f.msg">Mesajın</span><textarea name="message" rows="5" required></textarea></label>
+          <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="full cform-foot">
+            <button class="btn btn--acc" type="submit" id="sendBtn"><span data-t="f.send">Gönder</span> <span class="arr">→</span></button>
+            <p class="cform-msg" id="formMsg" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </form>
       <div class="socials rv">
         <a class="link" href="https://www.linkedin.com/in/muhammed-emin-coskun/" target="_blank" rel="noopener">LinkedIn <span class="arr">↗</span></a>
         <a class="link" href="https://tecmo35.itch.io/" target="_blank" rel="noopener">itch.io <span class="arr">↗</span></a>
@@ -449,18 +478,18 @@ h1 em{display:inline-block}
     'f.loc': 'Location', 'f.loc.v': 'İzmir, Türkiye · open to remote', 'f.now': 'Now', 'f.now.v': 'Mortis Loop and FIRUZE',
     'h.feat': 'Featured project', 'h.others': 'Other games',
     'c.title': 'Let\'s make a game <em>together.</em>', 'top': 'Back to top ↑', 'c.text': 'Reach out for an internship, a junior role or a project.',
-    'c.mail': 'Send an email', 'c.copy': 'Copy address', 'c.copied': 'Copied ✓', 'close': 'Close',
+    'c.mail': 'Send a message', 'f.name': 'Your name', 'f.mail': 'Your email', 'f.msg': 'Your message', 'f.send': 'Send', 'c.copy': 'Copy address', 'c.copied': 'Copied ✓', 'close': 'Close',
     // Kod içindeki arayüz metinleri
     'watch': 'Watch trailer', 'play': 'Play trailer', 'details': 'View details', 'view': 'View', 'soon': 'Visuals coming soon',
     'hover': '▶ Hover to preview', 'open': ' — open project', 'role': 'My role', 'decisions': 'Design decisions', 'next': 'What\'s next',
     'gallery': 'Gallery', 'problem': 'Problem.', 'decision': 'Decision.', 'result': 'Result.', 'nomedia': 'Gameplay footage coming soon.',
-    'zoom': ' — enlarge image', 'copiedMsg': ' copied'
+    'zoom': ' — enlarge image', 'fOk': 'Message received, I\'ll get back to you soon. Thanks!', 'fErr': 'Couldn\'t send. Please email me directly.', 'fFill': 'Please fill in all fields.', 'fSending': 'Sending…', 'copiedMsg': ' copied'
   };
   var TR = {
     'watch': 'Fragmanı izle', 'play': 'Fragmanı oynat', 'details': 'Detayları incele', 'view': 'İncele', 'soon': 'Görseller yakında',
     'hover': '▶ Önizleme için üstüne gel', 'open': ' projesini aç', 'role': 'Rolüm', 'decisions': 'Tasarım kararları', 'next': 'Sırada ne var',
     'gallery': 'Galeri', 'problem': 'Problem.', 'decision': 'Karar.', 'result': 'Sonuç.', 'nomedia': 'Oynanış görüntüleri yakında eklenecek.',
-    'zoom': ' görselini büyüt', 'copiedMsg': ' kopyalandı', 'close': 'Kapat'
+    'zoom': ' görselini büyüt', 'fOk': 'Mesajın ulaştı, en kısa sürede dönüş yapacağım. Teşekkürler!', 'fErr': 'Gönderilemedi. Lütfen e-posta adresime doğrudan yaz.', 'fFill': 'Lütfen tüm alanları doldur.', 'fSending': 'Gönderiliyor…', 'copiedMsg': ' kopyalandı', 'close': 'Kapat'
   };
   // Oyunların İngilizce metinleri (boş bırakılan alan Türkçesiyle kalır)
   var GAMES_EN = {
@@ -618,6 +647,26 @@ h1 em{display:inline-block}
   // ----- Fotoğrafa tıklayınca el sallar -----
   var av = $('#avatar');
   av.addEventListener('click', function () { av.classList.remove('wave'); void av.offsetWidth; av.classList.add('wave'); setTimeout(function () { av.classList.remove('wave'); }, 1400); });
+
+  // ----- İletişim formu: FormSubmit ile doğrudan e-postaya gönderir -----
+  var form = $('#cform'), ob = $('#openForm'), fmsg = $('#formMsg');
+  ob.addEventListener('click', function () {
+    var open = form.classList.toggle('open'); ob.setAttribute('aria-expanded', open);
+    if (open) setTimeout(function () { form.querySelector('input').focus({ preventScroll: true }); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 250);
+  });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var bad = false;
+    [].forEach.call(form.querySelectorAll('[required]'), function (f) { var v = f.value.trim(); var b = !v || (f.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)); f.classList.toggle('bad', b); bad = bad || b; });
+    if (bad) { fmsg.className = 'cform-msg err'; fmsg.textContent = T('fFill'); return; }
+    var btn = $('#sendBtn'); btn.disabled = true; btn.classList.add('sending'); fmsg.className = 'cform-msg'; fmsg.textContent = T('fSending');
+    var d = new FormData(form); d.append('_subject', 'Portfolyo sitesinden yeni mesaj'); d.append('_template', 'table'); d.append('_captcha', 'false');
+    fetch('https://formsubmit.co/ajax/coskunmuhammed090@gmail.com', { method: 'POST', headers: { 'Accept': 'application/json' }, body: d })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (String(j.success) !== 'true') throw 0; fmsg.className = 'cform-msg ok'; fmsg.textContent = T('fOk'); form.reset(); })
+      .catch(function () { fmsg.className = 'cform-msg err'; fmsg.textContent = T('fErr'); })
+      .then(function () { btn.disabled = false; btn.classList.remove('sending'); });
+  });
 
   // ----- E-posta kopyala -----
   var toast = $('#toast'), tt;
