@@ -241,9 +241,12 @@ dialog.closing::backdrop{animation:fade .25s reverse forwards}
 .gallery button:hover img{transform:scale(1.05)}
 .gallery.px img{image-rendering:pixelated}
 /* Büyük görsel */
-.lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+/* Büyük görsel de bir <dialog>: oyun penceresinin ÜSTÜNDE açılması için */
+dialog.lb{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;border-radius:0;box-shadow:none;overflow:hidden;background:rgba(0,0,0,.88);display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;animation:none}
+dialog.lb:not([open]){display:none}
+dialog.lb::backdrop{background:transparent;backdrop-filter:none;animation:none}
 .lb.on{opacity:1;pointer-events:auto}
-.lb img{max-height:88vh;border-radius:12px;transform:scale(.94);transition:transform .3s cubic-bezier(.3,.7,.4,1.3)}
+.lb img{max-height:88vh;max-width:100%;cursor:zoom-out;border-radius:12px;transform:scale(.94);transition:transform .3s cubic-bezier(.3,.7,.4,1.3)}
 .lb.on img{transform:none}
 .lb.px img{image-rendering:pixelated}
 
@@ -410,7 +413,7 @@ h1 em{display:inline-block}
   <div class="d-head"><b id="dTitle"></b><button class="btn x" type="button" id="dClose" aria-label="Kapat" data-ta="close">✕</button></div>
   <div class="d-body" id="dBody"></div>
 </dialog>
-<div class="lb" id="lb" role="dialog" aria-label="Büyük görsel"><img alt=""></div>
+<dialog class="lb" id="lb" aria-label="Büyük görsel"><img alt=""></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -625,14 +628,24 @@ h1 em{display:inline-block}
 
   // ----- Büyük görsel -----
   var lb = $('#lb');
-  function closeLb() { lb.classList.remove('on'); }
+  // Açarken: üst katmana al (showModal), sonra yumuşakça görünür yap
+  function openLb(src) {
+    $('img', lb).src = src;
+    if (!lb.open) lb.showModal();
+    requestAnimationFrame(function () { lb.classList.add('on'); });
+  }
+  // Kapatırken: önce sönsün, sonra pencereyi kapat (oyun penceresi açık kalır)
+  function closeLb() {
+    lb.classList.remove('on');
+    setTimeout(function () { if (!lb.classList.contains('on') && lb.open) lb.close(); }, 250);
+  }
   lb.addEventListener('click', closeLb);
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && lb.classList.contains('on')) { e.stopPropagation(); closeLb(); } }, true);
+  lb.addEventListener('cancel', function (e) { e.preventDefault(); closeLb(); });
 
   // ----- Tıklamalar: pencere aç, görsel büyüt, iletişime git -----
   document.addEventListener('click', function (e) {
     var o = e.target.closest('[data-open]'); if (o) { openGame(o.getAttribute('data-open')); return; }
-    var z = e.target.closest('[data-zoom]'); if (z) { $('img', lb).src = z.getAttribute('data-zoom'); lb.classList.add('on'); return; }
+    var z = e.target.closest('[data-zoom]'); if (z) { openLb(z.getAttribute('data-zoom')); return; }
     var go = e.target.closest('[data-go]'); if (go) closeGame(function () { $('#' + go.getAttribute('data-go')).scrollIntoView({ behavior: 'smooth' }); });
   });
 
